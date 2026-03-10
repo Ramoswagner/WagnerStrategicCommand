@@ -263,7 +263,7 @@
                         <div class="step-num">1</div>
                         <div class="step-content">
                             <strong>Abra sua planilha no Google Sheets</strong>
-                            <p>Certifique-se de que há duas abas: <code>Informações do Projeto</code> e <code>Atividades</code>.</p>
+                            <p>Sua planilha deve ter uma única aba com a estrutura abaixo.</p>
                         </div>
                     </div>
                     <div class="step">
@@ -276,8 +276,8 @@
                     <div class="step">
                         <div class="step-num">3</div>
                         <div class="step-content">
-                            <strong>Publique a aba "Atividades" como CSV</strong>
-                            <p>Selecione a aba <code>Atividades</code> e o formato <code>Valores separados por vírgula (.csv)</code>. Clique em <code>Publicar</code>.</p>
+                            <strong>Publique como CSV</strong>
+                            <p>Selecione a aba desejada e o formato <code>Valores separados por vírgula (.csv)</code>. Clique em <code>Publicar</code>.</p>
                         </div>
                     </div>
                     <div class="step">
@@ -297,15 +297,16 @@
             <div class="modal-tab-content" id="tab-estrutura">
                 <div class="tip-box">
                     <i class="fas fa-info-circle"></i>
-                    <p>A planilha deve ter <strong>duas abas</strong>: <code>Informações do Projeto</code> (nome, responsável, instituição) e <code>Atividades</code> (dados do projeto).</p>
+                    <p>A planilha deve ter <strong>UMA ÚNICA ABA</strong> com a seguinte estrutura:</p>
                 </div>
-                <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Aba: <code>Informações do Projeto</code></p>
+                <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Linha 1: Cabeçalhos (ignorados)</p>
+                <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Linha 2: Dados do Projeto (colunas A, B, C) + primeira atividade</p>
                 <div style="background:var(--gray-100);border-radius:var(--radius-md);padding:13px 16px;margin-bottom:16px;font-size:13px;color:var(--gray-700);line-height:2">
-                    <b>Linha 1, Coluna A:</b> Nome do Projeto &nbsp;→&nbsp; <i>ex: Sistema de Gestão Municipal</i><br>
-                    <b>Linha 1, Coluna B:</b> Responsável &nbsp;→&nbsp; <i>ex: Ana Lima</i><br>
-                    <b>Linha 1, Coluna C:</b> Instituição &nbsp;→&nbsp; <i>ex: Prefeitura de Belo Horizonte</i>
+                    <b>Coluna A (linha 2):</b> Nome do Projeto &nbsp;→&nbsp; <i>ex: Projeto inicial Wagner</i><br>
+                    <b>Coluna B (linha 2):</b> Responsável &nbsp;→&nbsp; <i>ex: Wagner</i><br>
+                    <b>Coluna C (linha 2):</b> Empresa &nbsp;→&nbsp; <i>ex: Eng Wagner</i>
                 </div>
-                <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Aba: <code>Atividades</code> — Colunas (linha 1 = cabeçalho)</p>
+                <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Atividades (a partir da linha 2, colunas D a M)</p>
                 <div style="overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--gray-300);margin-bottom:16px">
                     <table style="font-size:12.5px">
                         <thead><tr>
@@ -519,7 +520,7 @@ function updateDot(active){
     document.getElementById('refreshStatus').textContent=active?'Ao vivo':savedUrl?'Pausado':'Desconectado';
 }
 
-// ===== FETCH MODIFICADO =====
+// ===== FETCH =====
 async function fetchData(silent=false){
     if(!savedUrl||isRefreshing)return;
     isRefreshing=true;
@@ -531,10 +532,10 @@ async function fetchData(silent=false){
 
         const csvText = await r.text();
         
-        // Primeiro tenta extrair informações do projeto da mesma aba
+        // Extrai informações do projeto da LINHA 2
         extractProjectInfoFromSheet(csvText);
         
-        // Depois processa os dados das atividades
+        // Processa os dados das atividades
         processData(csvText);
         
         document.getElementById('lastUpdateText').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
@@ -551,28 +552,24 @@ async function fetchData(silent=false){
     }
 }
 
-// ===== NOVA FUNÇÃO: Extrai informações do projeto da mesma aba =====
+// ===== EXTRAI INFORMAÇÕES DO PROJETO DA LINHA 2 =====
 function extractProjectInfoFromSheet(csv){
     const rows = parseCSV(csv);
-    if(!rows || rows.length < 1) return;
+    if(!rows || rows.length < 2) return; // Precisa ter pelo menos 2 linhas
     
-    // Pega a primeira linha (índice 0) que contém os cabeçalhos e dados do projeto
-    const linhaDados = rows[0];
+    // Pega a SEGUNDA linha (índice 1) que contém os dados do projeto
+    const linhaDados = rows[1];
     
     // Verifica se a linha tem pelo menos 3 colunas
     if (!linhaDados || linhaDados.length < 3) return;
     
-    // Extrai os valores das primeiras 3 colunas
+    // Extrai os valores das primeiras 3 colunas da LINHA 2
     const nome = linhaDados[0] ? linhaDados[0].trim() : '';     // Coluna A
     const responsavel = linhaDados[1] ? linhaDados[1].trim() : ''; // Coluna B
     const instituicao = linhaDados[2] ? linhaDados[2].trim() : ''; // Coluna C
     
     // Verifica se são dados válidos (não são cabeçalhos)
-    const naoECabecalho = nome && nome !== 'Nome do Projeto' && 
-                          responsavel && responsavel !== 'Resp. Projeto' && 
-                          instituicao && instituicao !== 'Empresa';
-    
-    if(naoECabecalho && (nome || responsavel || instituicao)){
+    if(nome && nome !== 'Nome do Projeto' && nome !== 'nome do projeto'){
         projectInfo = {
             nome: nome || projectInfo.nome,
             responsavel: responsavel || projectInfo.responsavel,
@@ -602,7 +599,7 @@ function refreshNow(){fetchData(false);}
 // ===== PROCESS =====
 function processData(csv){
     const rows=parseCSV(csv);
-    // Pula a primeira linha (cabeçalho) e filtra linhas com dados
+    // Pega TODAS as linhas a partir da linha 2 (índice 1) que tenham dados nas colunas de atividade
     const dataRows=rows.slice(1).filter(r=>r.length>=13 && r[3] && r[3].trim() !== '');
     
     let totalPrev=0,totalReal=0,progSum=0,emAndamento=0,concluidas=0;
