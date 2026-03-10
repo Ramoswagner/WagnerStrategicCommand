@@ -301,9 +301,9 @@
                 </div>
                 <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Aba: <code>Informações do Projeto</code></p>
                 <div style="background:var(--gray-100);border-radius:var(--radius-md);padding:13px 16px;margin-bottom:16px;font-size:13px;color:var(--gray-700);line-height:2">
-                    <b>Linha 1, Coluna B:</b> Nome do Projeto &nbsp;→&nbsp; <i>ex: Sistema de Gestão Municipal</i><br>
-                    <b>Linha 2, Coluna B:</b> Responsável &nbsp;→&nbsp; <i>ex: Ana Lima</i><br>
-                    <b>Linha 3, Coluna B:</b> Instituição &nbsp;→&nbsp; <i>ex: Prefeitura de Belo Horizonte</i>
+                    <b>Linha 1, Coluna A:</b> Nome do Projeto &nbsp;→&nbsp; <i>ex: Sistema de Gestão Municipal</i><br>
+                    <b>Linha 1, Coluna B:</b> Responsável &nbsp;→&nbsp; <i>ex: Ana Lima</i><br>
+                    <b>Linha 1, Coluna C:</b> Instituição &nbsp;→&nbsp; <i>ex: Prefeitura de Belo Horizonte</i>
                 </div>
                 <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Aba: <code>Atividades</code> — Colunas (linha 1 = cabeçalho)</p>
                 <div style="overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--gray-300);margin-bottom:16px">
@@ -314,16 +314,16 @@
                             <th style="background:var(--primary);color:white">Exemplo</th>
                         </tr></thead>
                         <tbody>
-                            <tr><td>A</td><td>ID</td><td>1, 2, 3...</td></tr>
-                            <tr><td>B</td><td>Atividade</td><td>Levantamento de Requisitos</td></tr>
-                            <tr><td>C</td><td>Responsável</td><td>Ana Lima</td></tr>
-                            <tr><td>D</td><td>Início Previsto</td><td>01/03/2025</td></tr>
-                            <tr><td>E</td><td>Término Previsto</td><td>15/03/2025</td></tr>
-                            <tr><td>F</td><td>Início Real</td><td>01/03/2025</td></tr>
-                            <tr><td>G</td><td>Término Real</td><td>14/03/2025</td></tr>
-                            <tr><td>H</td><td>Custo Previsto (R$)</td><td>5000</td></tr>
-                            <tr><td>I</td><td>Custo Real (R$)</td><td>4800</td></tr>
-                            <tr><td>J</td><td>Progresso (%)</td><td>100</td></tr>
+                            <tr><td>D</td><td>ID</td><td>1, 2, 3...</td></tr>
+                            <tr><td>E</td><td>Atividade</td><td>Levantamento de Requisitos</td></tr>
+                            <tr><td>F</td><td>Responsável</td><td>Ana Lima</td></tr>
+                            <tr><td>G</td><td>Início Previsto</td><td>01/03/2025</td></tr>
+                            <tr><td>H</td><td>Término Previsto</td><td>15/03/2025</td></tr>
+                            <tr><td>I</td><td>Início Real</td><td>01/03/2025</td></tr>
+                            <tr><td>J</td><td>Término Real</td><td>14/03/2025</td></tr>
+                            <tr><td>K</td><td>Custo Previsto (R$)</td><td>5000</td></tr>
+                            <tr><td>L</td><td>Custo Real (R$)</td><td>4800</td></tr>
+                            <tr><td>M</td><td>Progresso (%)</td><td>100</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -519,63 +519,6 @@ function updateDot(active){
     document.getElementById('refreshStatus').textContent=active?'Ao vivo':savedUrl?'Pausado':'Desconectado';
 }
 
-// ===== FUNÇÃO AUXILIAR: Extrai o ID da planilha da URL =====
-function extractSpreadsheetId(url) {
-    try {
-        const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-        return match ? match[1] : null;
-    } catch {
-        return null;
-    }
-}
-
-// ===== NOVA FUNÇÃO: Tenta encontrar a aba com informações do projeto =====
-async function fetchProjectInfoFromAnySheet(baseUrl) {
-    try {
-        // Tenta gids de 0 a 10 (cobre a maioria das planilhas)
-        for (let gid = 0; gid <= 10; gid++) {
-            try {
-                const infoUrl = new URL(baseUrl);
-                infoUrl.searchParams.delete('gid');
-                infoUrl.searchParams.set('gid', gid.toString());
-                infoUrl.searchParams.set('_t', Date.now());
-                
-                const response = await fetch(infoUrl.toString());
-                if (!response.ok) continue;
-                
-                const csvText = await response.text();
-                const rows = parseCSV(csvText);
-                
-                // Verifica se esta aba tem a estrutura esperada (cabeçalho + dados)
-                if (rows && rows.length >= 2 && rows[1] && rows[1].length >= 3) {
-                    // Verifica se a primeira linha parece um cabeçalho
-                    const cabecalho = rows[0] ? rows[0].join(' ').toLowerCase() : '';
-                    const temCabecalho = cabecalho.includes('nome') || 
-                                        cabecalho.includes('projeto') || 
-                                        cabecalho.includes('respons') || 
-                                        cabecalho.includes('institu');
-                    
-                    // Se tem cabeçalho ou tem dados na linha 2, considera como aba de informações
-                    if (temCabecalho || (rows[1][0] && rows[1][0].trim() !== '')) {
-                        console.log('Aba de informações encontrada no gid:', gid);
-                        parseProjectInfo(csvText);
-                        return true;
-                    }
-                }
-            } catch (e) {
-                // Ignora erros e continua tentando
-            }
-        }
-        
-        console.log('Nenhuma aba de informações encontrada, usando valores padrão');
-        return false;
-        
-    } catch (error) {
-        console.log('Erro ao buscar informações do projeto:', error);
-        return false;
-    }
-}
-
 // ===== FETCH MODIFICADO =====
 async function fetchData(silent=false){
     if(!savedUrl||isRefreshing)return;
@@ -586,10 +529,14 @@ async function fetchData(silent=false){
         const r=await fetch(url);
         if(!r.ok)throw new Error('HTTP '+r.status);
 
-        // Busca informações do projeto em QUALQUER aba
-        await fetchProjectInfoFromAnySheet(savedUrl);
-
-        processData(await r.text());
+        const csvText = await r.text();
+        
+        // Primeiro tenta extrair informações do projeto da mesma aba
+        extractProjectInfoFromSheet(csvText);
+        
+        // Depois processa os dados das atividades
+        processData(csvText);
+        
         document.getElementById('lastUpdateText').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
         updateDot(autoRefreshEnabled);
         if(!silent)showToast('Dados atualizados!','success');
@@ -604,26 +551,28 @@ async function fetchData(silent=false){
     }
 }
 
-// ===== FUNÇÃO CORRIGIDA =====
-// Lê CSV da aba "Informações do Projeto" com sua estrutura específica:
-// Linha 1: cabeçalho (nome do projeto, reponsável, instituição)
-// Linha 2: valores (Projeto X, Responsável Y, Instituição Z)
-function parseProjectInfo(csv){
+// ===== NOVA FUNÇÃO: Extrai informações do projeto da mesma aba =====
+function extractProjectInfoFromSheet(csv){
     const rows = parseCSV(csv);
-    if(!rows || rows.length < 2) return; // Precisa ter pelo menos 2 linhas
+    if(!rows || rows.length < 1) return;
     
-    // Pega a segunda linha (índice 1) que contém os valores
-    const linhaDados = rows[1];
+    // Pega a primeira linha (índice 0) que contém os cabeçalhos e dados do projeto
+    const linhaDados = rows[0];
     
     // Verifica se a linha tem pelo menos 3 colunas
     if (!linhaDados || linhaDados.length < 3) return;
     
-    // Extrai os valores
+    // Extrai os valores das primeiras 3 colunas
     const nome = linhaDados[0] ? linhaDados[0].trim() : '';     // Coluna A
     const responsavel = linhaDados[1] ? linhaDados[1].trim() : ''; // Coluna B
     const instituicao = linhaDados[2] ? linhaDados[2].trim() : ''; // Coluna C
     
-    if(nome || responsavel || instituicao){
+    // Verifica se são dados válidos (não são cabeçalhos)
+    const naoECabecalho = nome && nome !== 'Nome do Projeto' && 
+                          responsavel && responsavel !== 'Resp. Projeto' && 
+                          instituicao && instituicao !== 'Empresa';
+    
+    if(naoECabecalho && (nome || responsavel || instituicao)){
         projectInfo = {
             nome: nome || projectInfo.nome,
             responsavel: responsavel || projectInfo.responsavel,
@@ -653,35 +602,59 @@ function refreshNow(){fetchData(false);}
 // ===== PROCESS =====
 function processData(csv){
     const rows=parseCSV(csv);
-    const dataRows=rows.slice(1).filter(r=>r.length>=10&&r[1]);
+    // Pula a primeira linha (cabeçalho) e filtra linhas com dados
+    const dataRows=rows.slice(1).filter(r=>r.length>=13 && r[3] && r[3].trim() !== '');
+    
     let totalPrev=0,totalReal=0,progSum=0,emAndamento=0,concluidas=0;
     let emDia=0,atrasados=0,naoIniciados=0,sobreOrcamento=0;
     let destaque={nome:'',prog:0};
     let tableHtml='',actRows=[];
 
     dataRows.forEach(cols=>{
-        const id=cols[0]||'—',atv=cols[1]||'—',resp=cols[2]||'—';
-        const inP=cols[3]||'—',fimP=cols[4]||'—',inR=cols[5]||'—',fimR=cols[6]||'—';
-        const cP=parseFloat((cols[7]||'0').replace(',','.'))||0;
-        const cR=parseFloat((cols[8]||'0').replace(',','.'))||0;
-        const prog=Math.min(100,Math.max(0,parseInt(cols[9])||0));
+        const id=cols[3]||'—';           // Coluna D
+        const atv=cols[4]||'—';           // Coluna E
+        const resp=cols[5]||'—';           // Coluna F
+        const inP=cols[6]||'—';            // Coluna G
+        const fimP=cols[7]||'—';           // Coluna H
+        const inR=cols[8]||'—';            // Coluna I
+        const fimR=cols[9]||'—';           // Coluna J
+        const cP=parseFloat((cols[10]||'0').replace(',','.'))||0; // Coluna K
+        const cR=parseFloat((cols[11]||'0').replace(',','.'))||0; // Coluna L
+        const prog=Math.min(100,Math.max(0,parseInt(cols[12])||0)); // Coluna M
+        
         totalPrev+=cP;totalReal+=cR;
         if(cR>cP)sobreOrcamento++;
         if(prog>0&&prog<100){progSum+=prog;emAndamento++;}
         if(prog===100)concluidas++;
         if(prog>destaque.prog)destaque={nome:atv,prog};
+        
         let sc='',st='',si='';
         if(prog===0){naoIniciados++;sc='status-nao-iniciado';st='Não iniciado';si='fa-hourglass-start';}
         else if(prog===100){emDia++;sc='status-concluido';st='Concluído';si='fa-check-circle';}
         else{const df=parseDate(fimP);if(df&&new Date()>df){atrasados++;sc='status-atrasado';st='Atrasado';si='fa-exclamation-circle';}else{emDia++;sc='status-em-dia';st='Em dia';si='fa-clock';}}
+        
         actRows.push({id,atv,resp,inP,fimP,inR,fimR,cP,cR,prog,st});
-        tableHtml+=`<tr><td><strong style="color:var(--gray-600)">${id}</strong></td><td><strong>${atv}</strong></td><td>${resp}</td><td>${inP}</td><td>${fimP}</td><td>${inR}</td><td>${fimR}</td><td>${fmoney(cP)}</td><td class="${cR>cP?'over-budget':''}">${fmoney(cR)}</td><td><div class="progress-bar"><div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div><span style="font-size:12px;font-weight:600;min-width:28px">${prog}%</span></div></td><td><span class="status-badge ${sc}"><i class="fas ${si}"></i> ${st}</span></td></tr>`;
+        tableHtml+=`<tr>
+            <td><strong style="color:var(--gray-600)">${id}</strong></td>
+            <td><strong>${atv}</strong></td>
+            <td>${resp}</td>
+            <td>${inP}</td>
+            <td>${fimP}</td>
+            <td>${inR}</td>
+            <td>${fimR}</td>
+            <td>${fmoney(cP)}</td>
+            <td class="${cR>cP?'over-budget':''}">${fmoney(cR)}</td>
+            <td><div class="progress-bar"><div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div><span style="font-size:12px;font-weight:600;min-width:28px">${prog}%</span></div></td>
+            <td><span class="status-badge ${sc}"><i class="fas ${si}"></i> ${st}</span></td>
+        </tr>`;
     });
 
     document.getElementById('tableBody').innerHTML=tableHtml||`<tr><td colspan="11"><div class="empty-state"><i class="fas fa-inbox"></i><h3>Nenhuma atividade</h3><p>Verifique se os dados começam na linha 2</p></div></td></tr>`;
+    
     const avg=emAndamento>0?Math.round(progSum/emAndamento):0;
     const varPct=totalPrev>0?((totalReal-totalPrev)/totalPrev*100).toFixed(1):0;
     const usedPct=totalPrev>0?((totalReal/totalPrev)*100).toFixed(1):0;
+    
     document.getElementById('totalPrevisto').textContent=fmoney(totalPrev);
     document.getElementById('totalReal').textContent=fmoney(totalReal);
     document.getElementById('avgProgress').textContent=avg+'%';
@@ -695,6 +668,7 @@ function processData(csv){
     document.getElementById('destaqueText').textContent=destaque.nome?`${destaque.nome} — ${destaque.prog}% concluído`:'—';
     document.getElementById('performanceText').textContent=`${(100-parseFloat(usedPct)).toFixed(1)}% do orçamento disponível`;
     document.getElementById('urlDisplay').textContent=savedUrl?savedUrl.substring(0,36)+'...':'Conectar Planilha';
+    
     updateFinanceChart(totalPrev,totalReal);
     updateStatusChart(emDia,atrasados,naoIniciados);
     lastData={totalPrev,totalReal,avgProg:avg,emDia,atrasados,naoIniciados,total:dataRows.length,concluidas,emAndamento,sobreOrcamento,destaque:destaque.nome,usedPct,varPct,rows:actRows};
