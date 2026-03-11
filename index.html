@@ -43,7 +43,6 @@
         /* ===== OVERLAY ===== */
         #onboarding-overlay { position:fixed; inset:0; background:rgba(10,25,20,0.78); backdrop-filter:blur(10px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn 0.35s ease; }
         #onboarding-overlay.hidden { display:none; }
-        /* .onboarding-modal { background:var(--white); border-radius:var(--radius-xl); width:100%; max-width:700px; box-shadow:var(--shadow-xl); overflow:hidden; animation:slideUp 0.45s cubic-bezier(0.16,1,0.3,1); } */
         .onboarding-modal { background:var(--white); border-radius:var(--radius-xl); width:100%; max-width:700px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-xl); overflow:hidden; animation:slideUp 0.45s cubic-bezier(0.16,1,0.3,1); }
         .modal-header { background:linear-gradient(135deg,#163d31 0%,var(--primary) 50%,var(--primary-light) 100%); padding:34px 40px 26px; position:relative; overflow:hidden; }
         .modal-header::before { content:''; position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:rgba(255,255,255,0.05); border-radius:50%; }
@@ -54,7 +53,6 @@
         .modal-logo-text span { display:block; font-size:11px; font-weight:400; color:rgba(255,255,255,0.6); font-family:'DM Sans',sans-serif; letter-spacing:0.6px; text-transform:uppercase; margin-top:2px; }
         .modal-header h2 { font-family:'Sora',sans-serif; font-size:23px; font-weight:700; color:white; line-height:1.3; position:relative; z-index:1; margin-bottom:7px; }
         .modal-header p { color:rgba(255,255,255,0.68); font-size:14px; line-height:1.6; position:relative; z-index:1; }
-        /* .modal-body { padding:28px 40px 32px; } */
         .modal-body { padding:28px 40px 32px; overflow-y:auto; flex:1; }
 
         /* Modal Tabs */
@@ -153,7 +151,7 @@
         .trend-up { color:var(--success); }
         .trend-down { color:var(--danger); }
 
-        /* Charts */
+        /* Charts — grade original (3 colunas) */
         .charts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
         .card { background:var(--white); border-radius:var(--radius-xl); padding:20px; box-shadow:var(--shadow-md); border:1px solid rgba(27,77,62,0.06); }
         .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
@@ -167,6 +165,24 @@
         .insight-icon { width:37px; height:37px; background:var(--white); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:15px; flex-shrink:0; box-shadow:var(--shadow-sm); }
         .insight-label { font-weight:600; font-size:12.5px; color:var(--gray-800); margin-bottom:2px; }
         .insight-value { font-size:12px; color:var(--gray-600); }
+
+        /* ===== NOVOS GRÁFICOS — grade 2ª linha ===== */
+        /* Layout: [Planejado x Executado (linha+área) = 5fr] [Custo por atividade (barras horiz.) = 4fr] [Eficiência por responsável (radar) = 3fr] */
+        .charts-grid-2 { display:grid; grid-template-columns:5fr 4fr 3fr; gap:14px; margin-bottom:14px; }
+
+        /* Gráfico de custo horizontal: scroll interno quando muitas atividades */
+        .chart-container-hbar { position:relative; overflow-y:auto; max-height:260px; /* altura base; cresce com dados */ }
+        .chart-container-hbar::-webkit-scrollbar { width:5px; }
+        .chart-container-hbar::-webkit-scrollbar-track { background:var(--gray-100); border-radius:10px; }
+        .chart-container-hbar::-webkit-scrollbar-thumb { background:var(--gray-300); border-radius:10px; }
+        .chart-container-hbar::-webkit-scrollbar-thumb:hover { background:var(--primary-light); }
+
+        /* Altura dinâmica do canvas interno do gráfico de barras horizontais */
+        #custosChart { display:block; }
+
+        /* Legenda customizada de cores para o gráfico Planejado x Executado */
+        .legend-dots { display:flex; align-items:center; gap:14px; font-size:12px; color:var(--gray-600); }
+        .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 
         /* Table */
         .table-section { background:var(--white); border-radius:var(--radius-xl); padding:20px; box-shadow:var(--shadow-md); border:1px solid rgba(27,77,62,0.06); }
@@ -204,17 +220,22 @@
         @keyframes spin { to{transform:rotate(360deg)} }
         .fa-spin { animation:spin 0.8s linear infinite; }
 
-        @media (max-width:1100px) { .kpi-grid{grid-template-columns:repeat(2,1fr);} .charts-grid{grid-template-columns:1fr 1fr;} }
+        @media (max-width:1100px) {
+            .kpi-grid{grid-template-columns:repeat(2,1fr);}
+            .charts-grid{grid-template-columns:1fr 1fr;}
+            .charts-grid-2{grid-template-columns:1fr 1fr;}
+        }
 
         @media (max-width:700px) {
             /* Dashboard */
             .dashboard-wrapper{padding:10px;}
             .kpi-grid{grid-template-columns:1fr 1fr;gap:10px;}
             .charts-grid{grid-template-columns:1fr;}
+            .charts-grid-2{grid-template-columns:1fr;}
             .header{flex-direction:column;gap:10px;align-items:flex-start;}
             .header-right{width:100%;}
             .config-bar{gap:10px;}
-        
+
             /* Onboarding modal */
             #onboarding-overlay{padding:12px;align-items:flex-end;}
             .onboarding-modal{max-height:92vh;display:flex;flex-direction:column;border-radius:var(--radius-xl) var(--radius-xl) 0 0;}
@@ -231,14 +252,14 @@
             .step-content p{font-size:13px;}
             #urlInput{font-size:13px;}
         }
-        
+
         @media (max-width:400px) {
             .modal-header h2{font-size:16px;}
             .modal-logo{gap:10px;}
             .modal-logo-icon{width:40px;height:40px;}
             .kpi-grid{grid-template-columns:1fr;}
         }
-        
+
         @media (min-width:701px) and (max-width:900px) {
             #onboarding-overlay{padding:16px;}
             .onboarding-modal{max-width:560px;}
@@ -246,19 +267,8 @@
             .modal-body{padding:22px 28px 28px;}
             .kpi-grid{grid-template-columns:repeat(2,1fr);}
             .charts-grid{grid-template-columns:1fr 1fr;}
+            .charts-grid-2{grid-template-columns:1fr 1fr;}
         }
-        
-        /* @media (max-width:700px) {
-            .dashboard-wrapper{padding:10px;}
-            .kpi-grid{grid-template-columns:1fr 1fr;gap:10px;}
-            .charts-grid{grid-template-columns:1fr;}
-            .header{flex-direction:column;gap:10px;align-items:flex-start;}
-            .header-right{width:100%;}
-            .modal-body{padding:20px 18px 26px;}
-            .modal-header{padding:24px 20px 20px;}
-            .modal-tabs{overflow-x:auto;}
-            .config-bar{gap:10px;}
-        }  */
     </style>
 </head>
 <body>
@@ -309,7 +319,6 @@
                         <div class="step-content">
                             <strong>Abra sua planilha no Google Sheets</strong>
                             <p>Baixe o modelo padrão de cronograma para o BI e suba online: <a href="modelo_cronograma_engwagnerramos.xlsx" download style="color:var(--accent);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent)">Planilha</a></p>
-                            <!--<p>Sua planilha deve ter uma única aba com a estrutura abaixo.</p> -->
                         </div>
                     </div>
                     <div class="step">
@@ -343,7 +352,7 @@
             <div class="modal-tab-content" id="tab-estrutura">
                 <div class="tip-box">
                     <i class="fas fa-info-circle"></i>
-                    <p>A planilha deve ter <strong>UMA ÚNICA ABA</strong> com a seguinte estrutura:</p>
+                    <p><strong>Lembrete:</strong> A planilha deve <strong>MANTER</strong> a ordem das abas conforme a estrutura.</p>
                 </div>
                 <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Linha 1: Cabeçalhos (ignorados)</p>
                 <p style="font-weight:600;font-size:13.5px;color:var(--gray-800);margin-bottom:8px;">Linha 2: Dados do Projeto (colunas A, B, C) + primeira atividade</p>
@@ -455,6 +464,7 @@
         </div>
     </div>
 
+    <!-- ===== GRÁFICOS ORIGINAIS (inalterados) ===== -->
     <div class="charts-grid">
         <div class="card">
             <div class="card-header"><span class="card-title"><i class="fas fa-chart-pie"></i> Saúde Financeira</span><span class="badge" id="percentualGasto">—</span></div>
@@ -472,6 +482,45 @@
         </div>
     </div>
 
+    <!-- ===== NOVOS GRÁFICOS ===== -->
+    <div class="charts-grid-2">
+
+        <!-- GRÁFICO 1: Planejado x Executado — linha com área -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-chart-area"></i> Planejado × Executado por Atividade</span>
+                <div class="legend-dots">
+                    <span class="legend-dot" style="background:rgba(27,77,62,0.8)"></span><span>Previsto</span>
+                    <span class="legend-dot" style="background:rgba(245,176,65,0.9)"></span><span>Real</span>
+                </div>
+            </div>
+            <div class="chart-container" style="height:240px"><canvas id="prevRealChart"></canvas></div>
+        </div>
+
+        <!-- GRÁFICO 2: Custo por atividade — barras horizontais com scroll -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-bars-staggered"></i> Custo por Atividade</span>
+                <span class="badge" id="custosScrollBadge">—</span>
+            </div>
+            <!-- wrapper com scroll; o canvas cresce dinamicamente via JS -->
+            <div class="chart-container-hbar" id="custosWrapper">
+                <canvas id="custosChart"></canvas>
+            </div>
+        </div>
+
+        <!-- GRÁFICO 3: Progresso por responsável — barras horizontais empilhadas (ideal para este contexto: mostra carga e conclusão por pessoa) -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-users"></i> Carga por Responsável</span>
+                <span class="badge" id="respBadge">—</span>
+            </div>
+            <div class="chart-container" style="height:240px"><canvas id="respChart"></canvas></div>
+        </div>
+
+    </div>
+
+    <!-- ===== TABELA (inalterada) ===== -->
     <div class="table-section">
         <div class="table-header">
             <span class="table-title"><i class="fas fa-list-ul" style="color:var(--primary)"></i> Detalhamento das Atividades</span>
@@ -504,6 +553,9 @@
 <script>
 // ===== ESTADO =====
 let financeChart=null, statusChart=null, refreshTimer=null, isRefreshing=false;
+// Novos charts
+let prevRealChart=null, custosChart=null, respChart=null;
+
 let savedUrl='', autoRefreshEnabled=true, refreshIntervalSec=60;
 let projectInfo={nome:'Project Wagner BI',responsavel:'',instituicao:''};
 let lastData={totalPrev:0,totalReal:0,avgProg:0,emDia:0,atrasados:0,naoIniciados:0,total:0,concluidas:0,emAndamento:0,sobreOrcamento:0,destaque:'',usedPct:0,varPct:0,rows:[]};
@@ -575,15 +627,9 @@ async function fetchData(silent=false){
         const url=savedUrl+(savedUrl.includes('?')?'&':'?')+'_t='+Date.now();
         const r=await fetch(url);
         if(!r.ok)throw new Error('HTTP '+r.status);
-
         const csvText = await r.text();
-        
-        // Extrai informações do projeto da LINHA 2
         extractProjectInfoFromSheet(csvText);
-        
-        // Processa os dados das atividades
         processData(csvText);
-        
         document.getElementById('lastUpdateText').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
         updateDot(autoRefreshEnabled);
         if(!silent)showToast('Dados atualizados!','success');
@@ -601,42 +647,23 @@ async function fetchData(silent=false){
 // ===== EXTRAI INFORMAÇÕES DO PROJETO DA LINHA 2 =====
 function extractProjectInfoFromSheet(csv){
     const rows = parseCSV(csv);
-    if(!rows || rows.length < 2) return; // Precisa ter pelo menos 2 linhas
-    
-    // Pega a SEGUNDA linha (índice 1) que contém os dados do projeto
+    if(!rows || rows.length < 2) return;
     const linhaDados = rows[1];
-    
-    // Verifica se a linha tem pelo menos 3 colunas
     if (!linhaDados || linhaDados.length < 3) return;
-    
-    // Extrai os valores das primeiras 3 colunas da LINHA 2
-    const nome = linhaDados[0] ? linhaDados[0].trim() : '';     // Coluna A
-    const responsavel = linhaDados[1] ? linhaDados[1].trim() : ''; // Coluna B
-    const instituicao = linhaDados[2] ? linhaDados[2].trim() : ''; // Coluna C
-    
-    // Verifica se são dados válidos (não são cabeçalhos)
+    const nome = linhaDados[0] ? linhaDados[0].trim() : '';
+    const responsavel = linhaDados[1] ? linhaDados[1].trim() : '';
+    const instituicao = linhaDados[2] ? linhaDados[2].trim() : '';
     if(nome && nome !== 'Nome do Projeto' && nome !== 'nome do projeto'){
         projectInfo = {
             nome: nome || projectInfo.nome,
             responsavel: responsavel || projectInfo.responsavel,
             instituicao: instituicao || projectInfo.instituicao
         };
-        
-        // Atualiza o título no dashboard
-        if(projectInfo.nome) {
-            document.getElementById('projectTitle').textContent = projectInfo.nome;
-        }
-        
-        // Atualiza o subtítulo (responsável + instituição)
+        if(projectInfo.nome) document.getElementById('projectTitle').textContent = projectInfo.nome;
         const partes = [];
         if(projectInfo.responsavel) partes.push(projectInfo.responsavel);
         if(projectInfo.instituicao) partes.push(projectInfo.instituicao);
-        
-        if(partes.length > 0) {
-            document.getElementById('projectSubtitle').textContent = partes.join(' · ');
-        } else {
-            document.getElementById('projectSubtitle').textContent = 'Auto-Refresh · Analytics em tempo real';
-        }
+        document.getElementById('projectSubtitle').textContent = partes.length>0 ? partes.join(' · ') : 'Auto-Refresh · Analytics em tempo real';
     }
 }
 
@@ -645,37 +672,36 @@ function refreshNow(){fetchData(false);}
 // ===== PROCESS =====
 function processData(csv){
     const rows=parseCSV(csv);
-    // Pega TODAS as linhas a partir da linha 2 (índice 1) que tenham dados nas colunas de atividade
     const dataRows=rows.slice(1).filter(r=>r.length>=13 && r[3] && r[3].trim() !== '');
-    
+
     let totalPrev=0,totalReal=0,progSum=0,emAndamento=0,concluidas=0;
     let emDia=0,atrasados=0,naoIniciados=0,sobreOrcamento=0;
     let destaque={nome:'',prog:0};
     let tableHtml='',actRows=[];
 
     dataRows.forEach(cols=>{
-        const id=cols[3]||'—';           // Coluna D
-        const atv=cols[4]||'—';           // Coluna E
-        const resp=cols[5]||'—';           // Coluna F
-        const inP=cols[6]||'—';            // Coluna G
-        const fimP=cols[7]||'—';           // Coluna H
-        const inR=cols[8]||'—';            // Coluna I
-        const fimR=cols[9]||'—';           // Coluna J
-        const cP=parseFloat((cols[10]||'0').replace(',','.'))||0; // Coluna K
-        const cR=parseFloat((cols[11]||'0').replace(',','.'))||0; // Coluna L
-        const prog=Math.min(100,Math.max(0,parseInt(cols[12])||0)); // Coluna M
-        
+        const id=cols[3]||'—';
+        const atv=cols[4]||'—';
+        const resp=cols[5]||'—';
+        const inP=cols[6]||'—';
+        const fimP=cols[7]||'—';
+        const inR=cols[8]||'—';
+        const fimR=cols[9]||'—';
+        const cP=parseFloat((cols[10]||'0').replace(',','.'))||0;
+        const cR=parseFloat((cols[11]||'0').replace(',','.'))||0;
+        const prog=Math.min(100,Math.max(0,parseInt(cols[12])||0));
+
         totalPrev+=cP;totalReal+=cR;
         if(cR>cP)sobreOrcamento++;
         if(prog>0&&prog<100){progSum+=prog;emAndamento++;}
         if(prog===100)concluidas++;
         if(prog>destaque.prog)destaque={nome:atv,prog};
-        
+
         let sc='',st='',si='';
         if(prog===0){naoIniciados++;sc='status-nao-iniciado';st='Não iniciado';si='fa-hourglass-start';}
         else if(prog===100){emDia++;sc='status-concluido';st='Concluído';si='fa-check-circle';}
         else{const df=parseDate(fimP);if(df&&new Date()>df){atrasados++;sc='status-atrasado';st='Atrasado';si='fa-exclamation-circle';}else{emDia++;sc='status-em-dia';st='Em dia';si='fa-clock';}}
-        
+
         actRows.push({id,atv,resp,inP,fimP,inR,fimR,cP,cR,prog,st});
         tableHtml+=`<tr>
             <td><strong style="color:var(--gray-600)">${id}</strong></td>
@@ -693,11 +719,11 @@ function processData(csv){
     });
 
     document.getElementById('tableBody').innerHTML=tableHtml||`<tr><td colspan="11"><div class="empty-state"><i class="fas fa-inbox"></i><h3>Nenhuma atividade</h3><p>Verifique se os dados começam na linha 2</p></div></td></tr>`;
-    
+
     const avg=emAndamento>0?Math.round(progSum/emAndamento):0;
     const varPct=totalPrev>0?((totalReal-totalPrev)/totalPrev*100).toFixed(1):0;
     const usedPct=totalPrev>0?((totalReal/totalPrev)*100).toFixed(1):0;
-    
+
     document.getElementById('totalPrevisto').textContent=fmoney(totalPrev);
     document.getElementById('totalReal').textContent=fmoney(totalReal);
     document.getElementById('avgProgress').textContent=avg+'%';
@@ -711,13 +737,20 @@ function processData(csv){
     document.getElementById('destaqueText').textContent=destaque.nome?`${destaque.nome} — ${destaque.prog}% concluído`:'—';
     document.getElementById('performanceText').textContent=`${(100-parseFloat(usedPct)).toFixed(1)}% do orçamento disponível`;
     document.getElementById('urlDisplay').textContent=savedUrl?savedUrl.substring(0,36)+'...':'Conectar Planilha';
-    
+
+    // Gráficos originais
     updateFinanceChart(totalPrev,totalReal);
     updateStatusChart(emDia,atrasados,naoIniciados);
+
+    // Novos gráficos
+    updatePrevRealChart(actRows);
+    updateCustosChart(actRows);
+    updateRespChart(actRows);
+
     lastData={totalPrev,totalReal,avgProg:avg,emDia,atrasados,naoIniciados,total:dataRows.length,concluidas,emAndamento,sobreOrcamento,destaque:destaque.nome,usedPct,varPct,rows:actRows};
 }
 
-// ===== CHARTS =====
+// ===== GRÁFICOS ORIGINAIS (inalterados) =====
 function updateFinanceChart(prev,real){
     const ctx=document.getElementById('financeChart').getContext('2d');
     if(financeChart)financeChart.destroy();
@@ -727,6 +760,225 @@ function updateStatusChart(emDia,atrasados,naoIniciados){
     const ctx=document.getElementById('statusChart').getContext('2d');
     if(statusChart)statusChart.destroy();
     statusChart=new Chart(ctx,{type:'bar',data:{labels:['Em dia','Atrasados','Não iniciados'],datasets:[{data:[emDia,atrasados,naoIniciados],backgroundColor:['rgba(46,125,50,0.85)','rgba(198,40,40,0.85)','rgba(230,81,0,0.85)'],borderColor:['rgba(46,125,50,1)','rgba(198,40,40,1)','rgba(230,81,0,1)'],borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{family:'DM Sans'}}},x:{ticks:{font:{family:'DM Sans',size:12}}}}}});
+}
+
+// ===== NOVOS GRÁFICOS =====
+
+// GRÁFICO 1 — Planejado × Executado (linhas com área preenchida)
+function updatePrevRealChart(rows){
+    const ctx=document.getElementById('prevRealChart').getContext('2d');
+    if(prevRealChart)prevRealChart.destroy();
+
+    // Trunca labels para caber no eixo
+    const labels=rows.map(r=>r.atv.length>18?r.atv.substring(0,17)+'…':r.atv);
+    const previsto=rows.map(r=>r.cP);
+    const real=rows.map(r=>r.cR);
+
+    prevRealChart=new Chart(ctx,{
+        type:'line',
+        data:{
+            labels,
+            datasets:[
+                {
+                    label:'Previsto',
+                    data:previsto,
+                    borderColor:'rgba(27,77,62,0.9)',
+                    backgroundColor:'rgba(27,77,62,0.08)',
+                    borderWidth:2.5,
+                    pointBackgroundColor:'rgba(27,77,62,1)',
+                    pointRadius:4,
+                    pointHoverRadius:6,
+                    fill:true,
+                    tension:0.35
+                },
+                {
+                    label:'Real',
+                    data:real,
+                    borderColor:'rgba(245,176,65,1)',
+                    backgroundColor:'rgba(245,176,65,0.12)',
+                    borderWidth:2.5,
+                    pointBackgroundColor:'rgba(245,176,65,1)',
+                    pointRadius:4,
+                    pointHoverRadius:6,
+                    fill:true,
+                    tension:0.35,
+                    borderDash:[],
+                }
+            ]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                legend:{display:false}, // Legenda customizada no HTML
+                tooltip:{
+                    callbacks:{
+                        label:c=>`${c.dataset.label}: ${fmoney(c.raw)}`
+                    }
+                }
+            },
+            scales:{
+                x:{
+                    ticks:{font:{family:'DM Sans',size:10},maxRotation:35,minRotation:0},
+                    grid:{display:false}
+                },
+                y:{
+                    beginAtZero:true,
+                    ticks:{font:{family:'DM Sans',size:11},callback:v=>v>=1000?'R$'+(v/1000).toFixed(0)+'k':'R$'+v},
+                    grid:{color:'rgba(0,0,0,0.04)'}
+                }
+            }
+        }
+    });
+}
+
+// GRÁFICO 2 — Custo por atividade (barras horizontais, canvas com altura dinâmica + scroll)
+function updateCustosChart(rows){
+    if(custosChart)custosChart.destroy();
+
+    const BAR_H=28; // altura por barra (px)
+    const PADDING=60; // espaço para eixo X
+    const canvasH=Math.max(180, rows.length * BAR_H + PADDING);
+
+    const wrapper=document.getElementById('custosWrapper');
+    const canvas=document.getElementById('custosChart');
+
+    // Ajusta altura do wrapper para scroll aparecer só quando necessário (max 260px)
+    wrapper.style.maxHeight=rows.length>8?'260px':'none';
+
+    // Ajusta altura real do canvas
+    canvas.style.height=canvasH+'px';
+    canvas.height=canvasH;
+
+    const labels=rows.map(r=>r.atv.length>22?r.atv.substring(0,21)+'…':r.atv);
+    const previsto=rows.map(r=>r.cP);
+    const real=rows.map(r=>r.cR);
+
+    // Colore barra real: vermelho se acima do previsto, verde se abaixo
+    const realColors=rows.map(r=>r.cR>r.cP?'rgba(198,40,40,0.8)':'rgba(27,77,62,0.75)');
+    const realBorders=rows.map(r=>r.cR>r.cP?'rgba(198,40,40,1)':'rgba(27,77,62,1)');
+
+    document.getElementById('custosScrollBadge').textContent=rows.length+' atividades';
+
+    const ctx=canvas.getContext('2d');
+    custosChart=new Chart(ctx,{
+        type:'bar',
+        data:{
+            labels,
+            datasets:[
+                {
+                    label:'Previsto',
+                    data:previsto,
+                    backgroundColor:'rgba(200,220,215,0.7)',
+                    borderColor:'rgba(160,200,190,1)',
+                    borderWidth:1.5,
+                    borderRadius:4,
+                    borderSkipped:false,
+                    barThickness:10
+                },
+                {
+                    label:'Real',
+                    data:real,
+                    backgroundColor:realColors,
+                    borderColor:realBorders,
+                    borderWidth:1.5,
+                    borderRadius:4,
+                    borderSkipped:false,
+                    barThickness:10
+                }
+            ]
+        },
+        options:{
+            indexAxis:'y',  // barras horizontais
+            responsive:false, // false para controlar altura manualmente
+            maintainAspectRatio:false,
+            plugins:{
+                legend:{
+                    position:'bottom',
+                    labels:{font:{family:'DM Sans',size:11},padding:10,boxWidth:12}
+                },
+                tooltip:{
+                    callbacks:{
+                        label:c=>`${c.dataset.label}: ${fmoney(c.raw)}`
+                    }
+                }
+            },
+            scales:{
+                x:{
+                    beginAtZero:true,
+                    ticks:{font:{family:'DM Sans',size:10},callback:v=>v>=1000?'R$'+(v/1000).toFixed(0)+'k':'R$'+v},
+                    grid:{color:'rgba(0,0,0,0.04)'}
+                },
+                y:{
+                    ticks:{font:{family:'DM Sans',size:11}},
+                    grid:{display:false}
+                }
+            }
+        }
+    });
+}
+
+// GRÁFICO 3 — Carga por responsável (barras horizontais empilhadas: concluídas + em andamento + não iniciadas)
+// Ideal para o contexto: mostra distribuição de trabalho e saúde por pessoa de forma imediata
+function updateRespChart(rows){
+    const ctx=document.getElementById('respChart').getContext('2d');
+    if(respChart)respChart.destroy();
+
+    // Agrupa por responsável
+    const mapa={};
+    rows.forEach(r=>{
+        if(!mapa[r.resp])mapa[r.resp]={concluidas:0,emAndamento:0,naoIniciados:0,atrasadas:0};
+        if(r.prog===100)mapa[r.resp].concluidas++;
+        else if(r.prog===0)mapa[r.resp].naoIniciados++;
+        else{
+            // verifica atraso
+            const df=parseDate(r.fimP);
+            if(df&&new Date()>df) mapa[r.resp].atrasadas++;
+            else mapa[r.resp].emAndamento++;
+        }
+    });
+
+    const responsaveis=Object.keys(mapa);
+    document.getElementById('respBadge').textContent=responsaveis.length+(responsaveis.length===1?' pessoa':' pessoas');
+
+    respChart=new Chart(ctx,{
+        type:'bar',
+        data:{
+            labels:responsaveis.map(r=>r.length>14?r.substring(0,13)+'…':r),
+            datasets:[
+                {label:'Concluídas',data:responsaveis.map(r=>mapa[r].concluidas),backgroundColor:'rgba(46,125,50,0.8)',borderRadius:4,borderSkipped:false},
+                {label:'Em andamento',data:responsaveis.map(r=>mapa[r].emAndamento),backgroundColor:'rgba(27,77,62,0.65)',borderRadius:0,borderSkipped:false},
+                {label:'Atrasadas',data:responsaveis.map(r=>mapa[r].atrasadas),backgroundColor:'rgba(198,40,40,0.8)',borderRadius:0,borderSkipped:false},
+                {label:'Não iniciadas',data:responsaveis.map(r=>mapa[r].naoIniciados),backgroundColor:'rgba(230,81,0,0.6)',borderRadius:0,borderSkipped:false},
+            ]
+        },
+        options:{
+            indexAxis:'y',
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+                legend:{
+                    position:'bottom',
+                    labels:{font:{family:'DM Sans',size:10},padding:8,boxWidth:10}
+                },
+                tooltip:{mode:'index',intersect:false}
+            },
+            scales:{
+                x:{
+                    stacked:true,
+                    beginAtZero:true,
+                    ticks:{font:{family:'DM Sans',size:11},stepSize:1},
+                    grid:{color:'rgba(0,0,0,0.04)'}
+                },
+                y:{
+                    stacked:true,
+                    ticks:{font:{family:'DM Sans',size:11}},
+                    grid:{display:false}
+                }
+            }
+        }
+    });
 }
 
 // ===== PDF PRESENTATION GENERATOR =====
@@ -740,7 +992,6 @@ function generatePPTX(){
     const vpct = parseFloat(d.varPct);
     const usedN = parseFloat(d.usedPct);
 
-    // Linhas da tabela
     const maxR = Math.min(d.rows.length, 14);
     let tblRows = '';
     for(let i=0;i<maxR;i++){
